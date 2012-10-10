@@ -23,6 +23,7 @@ Installation
 
 - You can edit the Merchant ID, Public/Private key values from Braintree within the Satchmo settings screen at http://your-site.com/settings/
 
+- You can define the ``IS_PROD`` in your ``settings`` file for production use.
 
 This opensource app is brought to you by Tivix, Inc. ( http://tivix.com/ )
 

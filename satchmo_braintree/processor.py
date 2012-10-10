@@ -38,7 +38,7 @@ class PaymentProcessor(BasePaymentProcessor):
         
         # Configure Braintree
         Configuration.configure(
-            Environment.Production if django_settings.IS_PROD else Environment.Sandbox,
+            Environment.Production if django_settings.get('IS_PROD', False) else Environment.Sandbox,
             braintree_settings.MERCHANT_ID.value,
             braintree_settings.PUBLIC_KEY.value,
             braintree_settings.PRIVATE_KEY.value
@@ -86,7 +86,9 @@ class PaymentProcessor(BasePaymentProcessor):
                 payment = self.record_authorization(order=order, amount=amount, transaction_id=result.transaction.id)
                 response_text = 'Success'
             else:
-                response_text = 'Fail'
+                response_text = ''
+                for error in result.errors.deep_errors:
+                    response_text += '%s '%error.message
                 payment = self.record_failure(amount=amount)
             
             return ProcessorResult(self.key, result.is_success, response_text, payment=payment)
