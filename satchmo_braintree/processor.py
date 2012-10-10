@@ -38,7 +38,7 @@ class PaymentProcessor(BasePaymentProcessor):
         
         # Configure Braintree
         Configuration.configure(
-            Environment.Production if django_settings.get('IS_PROD', False) else Environment.Sandbox,
+            Environment.Production if getattr(django_settings, 'IS_PROD', False) else Environment.Sandbox,
             braintree_settings.MERCHANT_ID.value,
             braintree_settings.PUBLIC_KEY.value,
             braintree_settings.PRIVATE_KEY.value
