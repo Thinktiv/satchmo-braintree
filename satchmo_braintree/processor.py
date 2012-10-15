@@ -16,7 +16,7 @@ from satchmo_store.shop.models import Config
 from satchmo_utils.numbers import trunc_decimal
 from tax.utils import get_tax_processor
 from livesettings import config_get_group
-
+import signals
 
 class PaymentProcessor(BasePaymentProcessor):
     """
@@ -56,8 +56,7 @@ class PaymentProcessor(BasePaymentProcessor):
         else:
             self.log_extra('Capturing payment for %s', order)
             amount = order.balance
-            
-            result = Transaction.sale({
+            data = {
                 "amount": amount,
                 # "order_id": "123",
                 "credit_card": {
@@ -80,7 +79,10 @@ class PaymentProcessor(BasePaymentProcessor):
                 "options": {
                     "submit_for_settlement": True
                 }
-            })
+            }
+            signals.satcho_braintree_order_validate.send(sender = self, data=data, order=order)
+            
+            result = Transaction.sale(data)
             
             if result.is_success:
                 payment = self.record_authorization(order=order, amount=amount, transaction_id=result.transaction.id)
