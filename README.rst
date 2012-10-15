@@ -1,5 +1,4 @@
 
-
 =================
 satchmo-braintree
 =================
@@ -24,6 +23,8 @@ Installation
 - You can edit the Merchant ID, Public/Private key values from Braintree within the Satchmo settings screen at http://your-site.com/settings/
 
 - You can define the ``IS_PROD`` in your ``settings`` file for production use.
+
+- You can define the function to be used for satchmo payment step-2 using CREDIT_PAY_SHIP_INFO. e.g. CREDIT_PAY_SHIP_INFO="app.views.pay_ship_info"
 
 This opensource app is brought to you by Tivix, Inc. ( http://tivix.com/ )
 
