@@ -24,7 +24,9 @@ Installation
 
 - You can define the ``IS_PROD`` in your ``settings`` file for production use.
 
-- You can define the function to be used for satchmo payment step-2 using CREDIT_PAY_SHIP_INFO. e.g. CREDIT_PAY_SHIP_INFO="app.views.pay_ship_info"
+- You can define a wrapper function for braintree using ``BRAINTREE_WRAPPER_SERVER`` to use for writing tests.
+
+- You can define the function to be used for satchmo payment step-2 using ``CREDIT_PAY_SHIP_INFO``, e.g. CREDIT_PAY_SHIP_INFO="app.views.pay_ship_info". The same can be done for satchno payment confirmation using ``CREDIT_CONFIRM_INFO``.
 
 This opensource app is brought to you by Tivix, Inc. ( http://tivix.com/ )
 

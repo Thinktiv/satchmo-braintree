@@ -29,7 +29,7 @@ f.close()
 
 setup(
     name='satchmo-braintree',
-    version='0.2',
+    version='0.2.1',
     author='Sumit Chachra',
     author_email='chachra@tivix.com',
     url='http://github.com/tivix/satchmo-braintree',

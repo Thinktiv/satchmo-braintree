@@ -9,14 +9,19 @@ from django.template import loader, Context
 from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
 
-from braintree import Configuration, Environment, Transaction
-
 from payment.modules.base import BasePaymentProcessor, ProcessorResult
 from satchmo_store.shop.models import Config
 from satchmo_utils.numbers import trunc_decimal
 from tax.utils import get_tax_processor
 from livesettings import config_get_group
 import signals
+
+try:
+    from satchmo_braintree import import_func_from_string
+    braintree_wrapper_server = import_func_from_string(getattr(django_settings, 'BRAINTREE_WRAPPER_SERVER'))
+except:
+    braintree_wrapper_server = None
+    from braintree import Configuration, Environment, Transaction
 
 class PaymentProcessor(BasePaymentProcessor):
     """
@@ -34,15 +39,20 @@ class PaymentProcessor(BasePaymentProcessor):
     
     def capture_payment(self, testing=False, order=None, amount=None):
         """Process payments without an authorization step."""
-        braintree_settings = config_get_group('PAYMENT_SATCHMO_BRAINTREE')
-        
-        # Configure Braintree
-        Configuration.configure(
-            Environment.Production if getattr(django_settings, 'IS_PROD', False) else Environment.Sandbox,
-            braintree_settings.MERCHANT_ID.value,
-            braintree_settings.PUBLIC_KEY.value,
-            braintree_settings.PRIVATE_KEY.value
-        )
+        if braintree_wrapper_server:
+            transaction_sale = braintree_wrapper_server._sale_transaction
+        else:
+            braintree_settings = config_get_group('PAYMENT_SATCHMO_BRAINTREE')
+
+            # Configure Braintree
+            Configuration.configure(
+                Environment.Production if getattr(django_settings, 'IS_PROD', False) else Environment.Sandbox,
+                braintree_settings.MERCHANT_ID.value,
+                braintree_settings.PUBLIC_KEY.value,
+                braintree_settings.PRIVATE_KEY.value
+            )
+
+            transaction_sale = Transaction.sale
         
         if order:
             self.prepare_data(order)
@@ -82,7 +92,7 @@ class PaymentProcessor(BasePaymentProcessor):
             }
             signals.satcho_braintree_order_validate.send(sender = self, data=data, order=order)
             
-            result = Transaction.sale(data)
+            result = transaction_sale(data)
             
             if result.is_success:
                 payment = self.record_authorization(order=order, amount=amount, transaction_id=result.transaction.id)
