@@ -66,30 +66,33 @@ class PaymentProcessor(BasePaymentProcessor):
         else:
             self.log_extra('Capturing payment for %s', order)
             amount = order.balance
-            data = {
-                "amount": amount,
-                # "order_id": "123",
-                "credit_card": {
-                    "number": order.credit_card.decryptedCC,
-                    "expiration_date": order.credit_card.expirationDate,    # 05/2012 ?
-                    "cvv": order.credit_card.ccv
-                },
-                "customer": {
-                    "first_name": order.contact.first_name,
-                    "last_name": order.contact.last_name,
-                },
-                "billing": {
-                    "first_name": order.contact.first_name,
-                    "last_name": order.contact.last_name,
-                    "street_address": order.full_bill_street,
-                    "locality": order.bill_city,
-                    "region": order.bill_state,
-                    "postal_code": order.bill_postal_code,
-                },
-                "options": {
-                    "submit_for_settlement": True
+            if braintree_wrapper_server:
+                data = {}
+            else:
+                data = {
+                    "amount": amount,
+                    # "order_id": "123",
+                    "credit_card": {
+                        "number": order.credit_card.decryptedCC,
+                        "expiration_date": order.credit_card.expirationDate,    # 05/2012 ?
+                        "cvv": order.credit_card.ccv
+                    },
+                    "customer": {
+                        "first_name": order.contact.first_name,
+                        "last_name": order.contact.last_name,
+                    },
+                    "billing": {
+                        "first_name": order.contact.first_name,
+                        "last_name": order.contact.last_name,
+                        "street_address": order.full_bill_street,
+                        "locality": order.bill_city,
+                        "region": order.bill_state,
+                        "postal_code": order.bill_postal_code,
+                    },
+                    "options": {
+                        "submit_for_settlement": True
+                    }
                 }
-            }
             signals.satcho_braintree_order_validate.send(sender = self, data=data, order=order)
             
             result = transaction_sale(data)
